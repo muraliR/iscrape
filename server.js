@@ -31,7 +31,7 @@ var categorySchema = new Schema({
 })
 
 categorySchema.plugin(autoIncrement.plugin, { model: 'categories', field: 'category_id', startAt: 1 });
-var Category = mongoose.model('sections',categorySchema);
+var Category = mongoose.model('categories',categorySchema);
 categorySchema.plugin(uniqueValidator);
 
 var subcategorySchema = new Schema({
@@ -40,8 +40,8 @@ var subcategorySchema = new Schema({
     created_at: {type: Date, default: Date.now}
 })
 
-subcategorySchema.plugin(autoIncrement.plugin, { model: 'categories', field: 'subcategory_id', startAt: 1 });
-var Subcategory = mongoose.model('sections',subcategorySchema);
+subcategorySchema.plugin(autoIncrement.plugin, { model: 'subcategories', field: 'subcategory_id', startAt: 1 });
+var Subcategory = mongoose.model('subcategories',subcategorySchema);
 subcategorySchema.plugin(uniqueValidator);
 
 var productTypeSchema = new Schema({
@@ -51,8 +51,8 @@ var productTypeSchema = new Schema({
     created_at: {type: Date, default: Date.now}
 })
 
-productTypeSchema.plugin(autoIncrement.plugin, { model: 'categories', field: 'producttype_id', startAt: 1 });
-var productType = mongoose.model('sections',productTypeSchema);
+productTypeSchema.plugin(autoIncrement.plugin, { model: 'producttypes', field: 'product_type_id', startAt: 1 });
+var ProductType = mongoose.model('producttypes',productTypeSchema);
 productTypeSchema.plugin(uniqueValidator);
 
 var sellerSchema = new Schema({
@@ -61,24 +61,35 @@ var sellerSchema = new Schema({
     contact_number : { type: String, required: true },
     address : { type: String, required: true },
     created_at: {type: Date, default: Date.now}
+});
+
+var productSubTypeSchema = new Schema({
+	name: { type: String, required: true, unique: true},
+    url: { type: String, required: true, unique: true },
+    image_url : { type: String, required: true },
+    created_at: {type: Date, default: Date.now}
 })
 
-sellerSchema.plugin(autoIncrement.plugin, { model: 'categories', field: 'seller_id', startAt: 1 });
-var Seller = mongoose.model('sections',sellerSchema);
+productSubTypeSchema.plugin(autoIncrement.plugin, { model: 'productsubtypes', field: 'product_sub_type_id', startAt: 1 });
+var productSubType = mongoose.model('productsubtypes',productSubTypeSchema);
+productSubTypeSchema.plugin(uniqueValidator);
+
+sellerSchema.plugin(autoIncrement.plugin, { model: 'sellers', field: 'seller_id', startAt: 1 });
+var Seller = mongoose.model('sellers',sellerSchema);
 sellerSchema.plugin(uniqueValidator);
 
-var ProductSchema = new Schema({
+var productSchema = new Schema({
 	name: { type: String, required: true, unique: true},
     image_url: { type: String, required: true},
     price_info: {type: String, required: true},
-    seller_id : { type: Number, required: true },
+    seller_collection_id : { type: Number, required: true },
     images: Array,
-    seller_details : { type: Schema.Types.Mixed }
+    seller_details : { type: Schema.Types.Mixed },
     created_at: {type: Date, default: Date.now}
 })
 
 productSchema.plugin(autoIncrement.plugin, { model: 'categories', field: 'product_id', startAt: 1 });
-var product = mongoose.model('sections',productSchema);
+var Product = mongoose.model('products',productSchema);
 productSchema.plugin(uniqueValidator);
 
 
@@ -152,14 +163,45 @@ function processSections(){
 	})
 }
 
+function productTypes(){
+	request('https://dir.indiamart.com/indianexporters/com_hard.html', function (error, response, html) {
+	    if (!error && response.statusCode == 200) {
+	        var $ = cheerio.load(html);
+	        $('.ctgry li.box').each(function(i,elem) {
+	        	console.log($(this).find('.proHd').text());
+	        	console.log('https://dir.indiamart.com/' + $(this).find('.proHd').find('a').attr('href'));
+	        });
+	    } else {
+	    	console.log('dasdasdas ----');
+	    }
+	});	
+}
 
-Section.findOne({},function(err,section){
+function productSubTypes(){
+	request('https://dir.indiamart.com//impcat/keyboard.html', function (error, response, html) {
+	    if (!error && response.statusCode == 200) {
+	        var $ = cheerio.load(html);
+	        $('.ctgry').remove();
+	        $('li.box').each(function(i,elem) {
+	        	console.log($(this).find('.proHd').text());
+	        	console.log('https://dir.indiamart.com/' + $(this).find('a').attr('href'));
+	        });
+	    } else {
+	    	console.log('dasdasdas ----');
+	    }
+	});		
+}
+
+
+/*Section.findOne({},function(err,section){
 	if(section != null){
 		processSections();
 	} else {
 		scrapeSections();
 	}
-});
+});*/
+
+productSubTypes();
 
 
 app.listen('8081')
