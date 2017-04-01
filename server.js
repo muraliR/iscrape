@@ -384,7 +384,6 @@ function getSeller(sellerObj,callback){
 	})
 }
 
-scrapeSections();
 
 /*Section.findOne({},function(err,section){
 	if(section == null){
@@ -419,25 +418,25 @@ scrapeSections();
 
 
 	
-// var cronRunner = "0 */2 * * * *";
-// var cronJob = cron.job(cronRunner, function(){
-// 	console.log(new Date());
-// 	PollManager.findOne({}, function(err, pollData){
-// 		var object_id = pollData.object_id;
+var cronRunner = "0 */2 * * * *";
+var cronJob = cron.job(cronRunner, function(){
+	console.log(new Date());
+	PollManager.findOne({}, function(err, pollData){
+		var object_id = pollData.object_id;
 
-// 		if(pollData.object_type == "sections"){
-// 			Section.findOne({section_id: {$gt: object_id}}).sort({section_id: 1}).exec(function(catErr, sectionObj){
-// 				if(sectionObj != null){
-// 					processSections(sectionObj);
-// 					PollManager.update({ object_id: object_id }, { $set: {object_id: sectionObj.section_id, object_type: 'sections'} }, function(err, updatedResponse){
-// 					}); 
-// 				}
+		if(pollData.object_type == "sections"){
+			Section.findOne({section_id: {$gt: object_id}}).sort({section_id: 1}).exec(function(catErr, sectionObj){
+				if(sectionObj != null){
+					processSections(sectionObj);
+					PollManager.update({ object_id: object_id }, { $set: {object_id: sectionObj.section_id, object_type: 'sections'} }, function(err, updatedResponse){
+					}); 
+				}
 				
-// 			})	
-// 		}
-// 	});
-// });
-// cronJob.start();
+			})	
+		}
+	});
+});
+cronJob.start();
 
 queue.process('scrape_product', function(job, done){
 	console.log('queue processing  scrape_product');
