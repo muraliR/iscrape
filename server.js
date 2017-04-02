@@ -417,7 +417,7 @@ function getSeller(sellerObj,callback){
 })*/
 
 
-var cronRunner = "*/15 * * * * *";	
+var cronRunner = "*/20 * * * * *";	
 //var cronRunner = "0 */2 * * * *";
 var cronJob = cron.job(cronRunner, function(){
 	console.log(new Date());
