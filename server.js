@@ -50,8 +50,8 @@ var Subcategory = mongoose.model('subcategories',subcategorySchema);
 subcategorySchema.plugin(uniqueValidator);
 
 var productTypeSchema = new Schema({
-	name: { type: String, required: true, unique: true},
-    url: { type: String, required: true, unique: true },
+	name: { type: String, required: true},
+    url: { type: String, required: true},
     image_url : { type: String },
     subcategory_id: {type: Number, required: true},
     created_at: {type: Date, default: Date.now}
