@@ -115,7 +115,7 @@ var PollManager = mongoose.model('poll_manager',pollManagerSchema);
 //Create First Entry
 PollManager.findOne({},function(err,pollData){
 	if(pollData == null){
-		var newPoll = new PollManager({ object_type: 'subcategory', object_id: 0 });
+		var newPoll = new PollManager({ object_type: 'producttype', object_id: 0 });
 		newPoll.save(function(err){
 			if(!err){
 				console.log('PollManager Started!!');		
@@ -417,7 +417,7 @@ function getSeller(sellerObj,callback){
 })*/
 
 
-var cronRunner = "*/20 * * * * *";	
+var cronRunner = "*/15 * * * * *";	
 //var cronRunner = "0 */2 * * * *";
 var cronJob = cron.job(cronRunner, function(){
 	console.log(new Date());
@@ -425,10 +425,10 @@ var cronJob = cron.job(cronRunner, function(){
 		var object_id = pollData.object_id;
 
 		
-		Subcategory.findOne({subcategory_id: {$gt: object_id}}).sort({subcategory_id: 1}).exec(function(catErr, subcategoryObj){
-			if(subcategoryObj != null){
-				processProductTypes(subcategoryObj);
-				PollManager.update({ object_id: object_id }, { $set: {object_id: subcategoryObj.subcategory_id, object_type: 'subcategory'} }, function(err, updatedResponse){
+		ProductType.findOne({product_type_id: {$gt: object_id}}).sort({product_type_id: 1}).exec(function(catErr, productTypeObj){
+			if(productTypeObj != null){
+				scrapeProducts(productTypeObj);
+				PollManager.update({ object_id: object_id }, { $set: {object_id: productTypeObj.product_type_id, object_type: 'producttype'} }, function(err, updatedResponse){
 				}); 
 			}
 			
