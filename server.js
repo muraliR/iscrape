@@ -115,7 +115,7 @@ var PollManager = mongoose.model('poll_manager',pollManagerSchema);
 //Create First Entry
 PollManager.findOne({},function(err,pollData){
 	if(pollData == null){
-		var newPoll = new PollManager({ object_type: 'producttype', object_id: 0 });
+		var newPoll = new PollManager({ object_type: 'sellers', object_id: 0 });
 		newPoll.save(function(err){
 			if(!err){
 				console.log('PollManager Started!!');		
@@ -417,19 +417,20 @@ function getSeller(sellerObj,callback){
 })*/
 
 
-var cronRunner = "*/15 * * * * *";	
-//var cronRunner = "0 */2 * * * *";
+//var cronRunner = "*/50 * * * * *";	
+var cronRunner = "0 */1 * * * *";
 var cronJob = cron.job(cronRunner, function(){
 	console.log(new Date());
 	PollManager.findOne({}, function(err, pollData){
 		var object_id = pollData.object_id;
-
-		
-		ProductType.findOne({product_type_id: {$gt: object_id}}).sort({product_type_id: 1}).exec(function(catErr, productTypeObj){
-			if(productTypeObj != null){
-				scrapeProducts(productTypeObj);
-				PollManager.update({ object_id: object_id }, { $set: {object_id: productTypeObj.product_type_id, object_type: 'producttype'} }, function(err, updatedResponse){
+		Seller.findOne({seller_id: {$gt: object_id}}).sort({seller_id: 1}).exec(function(sellerErr, sellerObj){
+			if(sellerObj != null){
+				refactorSellerCollection(sellerObj);
+				PollManager.update({ object_id: object_id }, { $set: {object_id: sellerObj.seller_id} }, function(err, updatedResponse){
 				}); 
+			} else {
+				console.log('null');
+				console.log({seller_id: {$gt: object_id}});
 			}
 			
 		})	
@@ -441,6 +442,51 @@ cronJob.start();
 	processSubcategories(category);
 })*/
 
+function refactorSellerCollection(sellerObj){
+	var dont_delete_id = sellerObj.seller_id;
+
+
+	var sameSellerIds = [];
+
+	Seller.find({contact_number: sellerObj.contact_number, seller_id: {'$ne': sellerObj.seller_id }},function(err,sameSellers){
+
+		console.log('Running for Seller Id ' + sellerObj.seller_id + '  ' + sellerObj.contact_number);
+
+		if(sameSellers.length != 0){
+			console.log(' +++++++ Number of Same Seller Found ');
+			console.log(sameSellers.length);
+			sameSellers.forEach(function(sameSeller){
+				Product.update({seller_collection_id: sameSeller.seller_id}, { $set: {seller_collection_id: sellerObj.seller_id } }, function(err, updatedResponse){ 
+					console.log(updatedResponse);
+					console.log(sameSeller.seller_id);
+
+					Seller.remove({ seller_id : sameSeller.seller_id}, function(removeErr){
+                        if(!removeErr){
+                            console.log('removed successfully' + sameSeller.seller_id);
+                        }
+                    })
+
+
+				});
+			})	
+		} else {
+			console.log(' ------ No Same Seller Found ' + sellerObj.seller_id + '  ' + sellerObj.contact_number);
+		}
+
+		
+
+
+		// console.log('===========================================================');
+		// console.log(sellerObj);
+		// console.log('------------------------')
+		// console.log(sameSellerIds);
+		// console.log('===========================================================');
+
+
+
+	})
+}
+
 queue.process('scrape_product', function(job, done){
 	console.log('queue processing  scrape_product');
     var producttype = job.data.producttype;
@@ -451,3 +497,11 @@ queue.process('scrape_product', function(job, done){
 app.listen('8081');
 console.log('server started');
 exports = module.exports = app;
+
+
+
+
+
+
+
+Seller.findOne
