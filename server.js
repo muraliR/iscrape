@@ -417,6 +417,7 @@ function getSeller(sellerObj,callback){
 })*/
 
 
+
 //var cronRunner = "*/50 * * * * *";	
 var cronRunner = "0 */1 * * * *";
 var cronJob = cron.job(cronRunner, function(){
@@ -497,11 +498,3 @@ queue.process('scrape_product', function(job, done){
 app.listen('8081');
 console.log('server started');
 exports = module.exports = app;
-
-
-
-
-
-
-
-Seller.findOne
