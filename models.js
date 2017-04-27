@@ -56,6 +56,7 @@ var sellerSchema = new Schema({
 	product_title: { type: String},
     website_url: {type: String, unique: true},
     contact_details: {type: Schema.Types.Mixed},
+    additional_details: {type: Schema.Types.Mixed},
     geo_location: {type: Schema.Types.Mixed},
     contact_details_added: {type: Boolean},
 	name: { type: String, required: true},
